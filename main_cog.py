@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-统一入口脚本: main_cog.py
+Unified entry script: main_cog.py
 
-用途:
-- 统一调度数据集 / LLM / Embedding
-- 可配置 topic / NER / triple 的 prompt 模板
-- 可配置奖励函数 (entity_alpha / entity_beta)
-- 可配置 dense 融合参数 (alpha / gamma / rrf)
+Usage:
+- Unified scheduling of datasets / LLM / Embedding
+- Configurable topic / NER / triple prompt templates
+- Configurable reward functions (entity_alpha / entity_beta)
+- Configurable dense fusion parameters (alpha / gamma / rrf)
 
-示例:
+Example:
   python main_cog.py --dataset musique --llm_name gpt-4o-mini --embedding_name nvidia/NV-Embed-v2 \
     --topic_prompt_name topic_extraction_fine_grained_v3 --ner_prompt_name ner_v2 --triple_prompt_name triple_extraction_v2 \
     --entity_alpha 4.0 --entity_beta 3.0 --dense_fuse_gamma 0.5
@@ -24,7 +24,7 @@ import time
 from datetime import datetime
 from typing import List, Dict, Any, Tuple
 
-# 兼容直接运行脚本时的本地导入
+# Local import compatibility when running script directly
 _repo_root = os.path.dirname(os.path.abspath(__file__))
 if _repo_root not in sys.path:
     sys.path.insert(0, _repo_root)
@@ -574,7 +574,6 @@ def main() -> None:
             for k, v in qa_metrics.items():
                 print(f"  {k:<12}: {v:.4f}")
 
-        # 时间与 Token 统计
         index_stats = getattr(cognitive_rag, 'last_index_stats', {})
         retrieval_stats = getattr(cognitive_rag, 'last_retrieval_stats', {})
         qa_stats = getattr(cognitive_rag, 'last_qa_stats', {})
@@ -591,7 +590,6 @@ def main() -> None:
         print(f"  {'qa_tokens':<20}: prompt={qa_stats.get('prompt_tokens', 0)}, completion={qa_stats.get('completion_tokens', 0)}")
         print(f"  {'total_tokens':<20}: prompt={total_prompt}, completion={total_completion}, total={total_prompt + total_completion}")
 
-        # 保存详细结果到 JSON
         summary = {
             "dataset": dataset_name,
             "gamma": args.dense_fuse_gamma,

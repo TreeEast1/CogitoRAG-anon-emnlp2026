@@ -150,11 +150,9 @@ class LegacyGraphRAG:
 
         self.openie_results_path = os.path.join(self.global_config.save_dir,f'openie_results_ner_{self.global_config.llm_name.replace("/", "_")}.json')
 
-        # 添加 think 存储路径
         self.think_storage_dir = os.path.join(self.global_config.save_dir, 'think_storage')
         os.makedirs(self.think_storage_dir, exist_ok=True)
 
-        # 添加失败文本存储路径
         self.failed_extraction_dir = os.path.join(self.global_config.save_dir, 'failed_extractions')
         os.makedirs(self.failed_extraction_dir, exist_ok=True)
 
@@ -968,12 +966,10 @@ class LegacyGraphRAG:
                                  'extracted_entities': ner_results_dict[chunk_key].unique_entities,
                                  'extracted_triples': triple_results_dict[chunk_key].triples}
 
-            # 添加 think 和 memory 信息
             if topic_results_dict and chunk_key in topic_results_dict:
                 topic_result = topic_results_dict[chunk_key]
                 chunk_openie_info['think'] = topic_result.think
                 chunk_openie_info['memory'] = topic_result.memory
-                # 传递 metadata 以便检查失败标记
                 chunk_openie_info['metadata'] = topic_result.metadata
 
             all_openie_info.append(chunk_openie_info)
@@ -1017,14 +1013,12 @@ class LegacyGraphRAG:
                 json.dump(openie_dict, f)
             logger.info(f"OpenIE results saved to {self.openie_results_path}")
 
-            # 保存 think 内容到单独的文件夹
             think_count = 0
             for chunk in all_openie_info:
                 if 'think' in chunk and chunk['think']:
                     chunk_id = chunk['idx']
                     think_content = chunk['think']
 
-                    # 使用 chunk_id 作为文件名
                     think_file_path = os.path.join(self.think_storage_dir, f'{chunk_id}.txt')
 
                     with open(think_file_path, 'w', encoding='utf-8') as f:
@@ -1035,12 +1029,10 @@ class LegacyGraphRAG:
             if think_count > 0:
                 logger.info(f"Saved {think_count} think files to {self.think_storage_dir}")
 
-            # 保存失败的提取文本
             failed_count = 0
             failed_records = []
 
             for chunk in all_openie_info:
-                # 检查是否有失败标记（从 metadata 中获取）
                 if 'metadata' in chunk and chunk.get('metadata', {}).get('extraction_failed', False):
                     chunk_id = chunk['idx']
                     passage = chunk['passage']
@@ -1058,7 +1050,6 @@ class LegacyGraphRAG:
                     failed_count += 1
 
             if failed_count > 0:
-                # 保存失败记录到 JSON 文件
                 failed_file_path = os.path.join(self.failed_extraction_dir,
                                                f'failed_extractions_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json')
 

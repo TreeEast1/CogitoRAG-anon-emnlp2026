@@ -1,6 +1,4 @@
 # rag_qa_musique_v2.py
-# 改进版：强调抽取式答案，保留原文表述（如 mid-June 不要简化为 June）
-# 原版: rag_qa_musique.py
 
 one_shot_rag_qa_docs = (
     """Wikipedia Title: The Last Horse\nThe Last Horse (Spanish:El último caballo) is a 1950 Spanish comedy film directed by Edgar Neville starring Fernando Fernán Gómez.\n"""
@@ -10,14 +8,12 @@ one_shot_rag_qa_docs = (
     """Wikipedia Title: Finding Nemo\nFinding Nemo Theatrical release poster Directed by Andrew Stanton Produced by Graham Walters Screenplay by Andrew Stanton Bob Peterson David Reynolds Story by Andrew Stanton Starring Albert Brooks Ellen DeGeneres Alexander Gould Willem Dafoe Music by Thomas Newman Cinematography Sharon Calahan Jeremy Lasky Edited by David Ian Salter Production company Walt Disney Pictures Pixar Animation Studios Distributed by Buena Vista Pictures Distribution Release date May 30, 2003 (2003 - 05 - 30) Running time 100 minutes Country United States Language English Budget $$94 million Box office $$940.3 million"""
 )
 
-# 第二个示例：演示保留时间修饰语（early/mid/late）
 second_shot_docs = (
     """Wikipedia Title: Allied Negotiations\nThe preliminary talks between the Allied powers began in early March 1945. By mid-April, the main discussions had formally started, focusing on post-war territorial arrangements.\n"""
     """Wikipedia Title: World War II Timeline\nWorld War II in Europe ended on May 8, 1945, known as Victory in Europe Day (V-E Day).\n"""
 )
 
 
-# 改进的 system prompt：强调抽取式答案
 rag_qa_system = (
     'As an advanced reading comprehension assistant, your task is to analyze text passages and answer questions accurately. '
     'Your response starts after "Thought: ", where you methodically break down the reasoning process. '
@@ -30,7 +26,6 @@ rag_qa_system = (
     'Your answer should be a direct extraction, not a summary or interpretation.'
 )
 
-# 第一个示例
 one_shot_rag_qa_input = (
     f"{one_shot_rag_qa_docs}"
     "\n\nQuestion: "
@@ -45,7 +40,6 @@ one_shot_rag_qa_output = (
     "\nAnswer: 1862"
 )
 
-# 第二个示例：演示保留时间修饰语
 second_shot_input = (
     f"{second_shot_docs}"
     "\n\nQuestion: "

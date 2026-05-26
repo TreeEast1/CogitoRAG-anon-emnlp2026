@@ -1,15 +1,5 @@
 # rag_qa_musique_v5.py
-# 增强版 v5：针对 V4 剩余 150 个检索完整但回答错误的 case 进行优化
-# 核心改进：
-# 1. 提取而非计算 - 禁止模型自行推算，必须从文档原文提取
-# 2. 禁止 "无法确定" - 答案就在文档中，抽象关系也是有效答案
-# 3. 完整名称提取 - 使用文档中的完整名称
-# 4. 格式保持 - 保持文档原文的格式（season three 而非 3）
-# 5. 抵制外部知识 - 只用文档信息，不用模型自带知识
-# 6. 区分日期类型 - 注意 written/recorded/released 的区别
-# 7. 多跳推理强化 - 继承 V4 的多跳推理规则
 
-# System prompt - V5 增强版
 rag_qa_system = (
     'You are a multi-hop reading comprehension assistant. Extract answers ONLY from the provided documents.\n\n'
 
@@ -64,7 +54,6 @@ rag_qa_system = (
     'Answer: [The FINAL answer, extracted EXACTLY from the documents]'
 )
 
-# 示例 1：基础单跳 - 保持 V4
 one_shot_docs = (
     '"""Wikipedia Title: University of Southampton\n'
     'The University of Southampton, which was founded in 1862 and received its Royal Charter as a university in 1952, has over 22,000 students.\n"""\n'
@@ -85,7 +74,6 @@ one_shot_output = (
     "Answer: 1862"
 )
 
-# 示例 2：提取而非计算 - 新增 V5 核心示例
 two_shot_docs = (
     '"""Wikipedia Title: Nanjing\n'
     'Nanjing had been the capital city of Yangzhou for about 400 years from late Han to early Tang.\n"""\n'
@@ -106,7 +94,6 @@ two_shot_output = (
     "Answer: about 400 years"
 )
 
-# 示例 3：禁止 "无法确定" - 新增 V5 核心示例
 three_shot_docs = (
     '"""Wikipedia Title: Friday Osanebi\n'
     'Friday Ossai Osanebi (born August 7, 1980) is a Nigerian and a member of the Delta State House of Assembly.\n"""\n'
@@ -127,7 +114,6 @@ three_shot_output = (
     "Answer: Honorable Justice Abiodun Smith"
 )
 
-# 示例 4：完整名称和格式保持 - 新增 V5 核心示例
 four_shot_docs = (
     '"""Wikipedia Title: Blue Skies (Diana DeGarmo album)\n'
     'Blue Skies is the debut album by American Idol runner-up Diana DeGarmo, released in December 7, 2004 on RCA Records.\n"""\n'
@@ -148,7 +134,6 @@ four_shot_output = (
     "Answer: season three"
 )
 
-# 示例 5：抵制外部知识，使用文档上下文 - 新增 V5 核心示例
 five_shot_docs = (
     '"""Wikipedia Title: John Kerry\n'
     'In 1994 the Senate passed a resolution, sponsored by Kerry and fellow Vietnam veteran John McCain, that called for an end to the existing trade embargo against Vietnam.\n"""\n'
@@ -169,7 +154,6 @@ five_shot_output = (
     "Answer: National War College"
 )
 
-# 示例 6：区分日期类型 - 新增 V5 核心示例
 six_shot_docs = (
     '"""Wikipedia Title: WDXQ\n'
     'WDXQ (1440 AM) is a radio station licensed to Cochran, Georgia, United States.\n"""\n'
@@ -191,7 +175,6 @@ six_shot_output = (
     "Answer: May 21, 1979"
 )
 
-# 示例 7：多跳推理完整链条 - 保持 V4 核心示例
 seven_shot_docs = (
     '"""Wikipedia Title: Keturah\n'
     'Keturah was a concubine and wife of the Biblical patriarch Abraham. According to the Book of Genesis, Abraham married Keturah after the death of his first wife, Sarah. Abraham and Keturah had six sons.\n"""\n'
@@ -212,7 +195,6 @@ seven_shot_output = (
     "Answer: Keturah"
 )
 
-# 示例 8：抽象答案有效 - 新增 V5 核心示例
 eight_shot_docs = (
     '"""Wikipedia Title: Beyonce\n'
     'Her marriage to rapper Jay Z and portrayal of Etta James in Cadillac Records influenced her third album.\n"""\n'

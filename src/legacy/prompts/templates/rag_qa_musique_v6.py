@@ -1,19 +1,7 @@
 # rag_qa_musique_v6.py
-# V6：基于 V4.1 的格式问题专项优化
 #
-# 核心改动（聚焦格式问题，最小化其他改动）：
-# 1. 新增规则6：日期格式规则 - 必须使用文档中的原始格式（英式/美式）
-# 2. 强化规则2：保留所有修饰词（about/around/mid-/nearly）
-# 3. 强化规则5：答案粒度精确匹配 - 不多不少
-# 4. 新增1个格式专项示例（示例7）
 #
-# 分析依据：
-# - 日期格式问题 (4个): "February 11, 1929" vs "11 February 1929" - 文档原文是英式
-# - 时间修饰词丢失 (9个): "400 years" vs "about 400 years"
-# - 答案过于简短 (34个): 缺少必要修饰词
-# - 答案过于冗长 (32个): 添加了多余修饰词
 
-# System prompt - V6 格式优化版
 rag_qa_system = (
     'You are a multi-hop reading comprehension assistant. Many questions require reasoning through MULTIPLE documents to reach the FINAL answer.\n\n'
 
@@ -65,7 +53,6 @@ rag_qa_system = (
     'Answer: [The FINAL answer, copied exactly from the documents]'
 )
 
-# 示例 1：基础单跳问题 (保持不变)
 one_shot_docs = (
     '"""Wikipedia Title: University of Southampton\n'
     'The University of Southampton, which was founded in 1862 and received its Royal Charter as a university in 1952, has over 22,000 students.\n"""\n'
@@ -86,7 +73,6 @@ one_shot_output = (
     "Answer: 1862"
 )
 
-# 示例 2：多跳推理 (保持不变)
 two_shot_docs = (
     '"""Wikipedia Title: Keturah\n'
     'Keturah was a concubine and wife of the Biblical patriarch Abraham. According to the Book of Genesis, Abraham married Keturah after the death of his first wife, Sarah. Abraham and Keturah had six sons.\n"""\n'
@@ -107,7 +93,6 @@ two_shot_output = (
     "Answer: Keturah"
 )
 
-# 示例 3：跨文档连接 (保持不变)
 three_shot_docs = (
     '"""Wikipedia Title: Shrek 2\n'
     'Shrek 2 is a 2004 film with Jennifer Saunders voicing the Fairy God Mother.\n"""\n'
@@ -128,7 +113,6 @@ three_shot_output = (
     "Answer: Adrian Edmondson"
 )
 
-# 示例 4：答案粒度问题 (保持不变)
 four_shot_docs = (
     '"""Wikipedia Title: The Boss (1915 film)\n'
     'The Boss is a 1915 silent film released through World Film Company.\n"""\n'
@@ -149,7 +133,6 @@ four_shot_output = (
     "Answer: Fort Lee"
 )
 
-# 示例 5：正确理解 "named after" 语义 (保持不变)
 five_shot_docs = (
     '"""Wikipedia Title: Fed Cup\n'
     'Fed Cup is the premier international team competition in women\'s tennis, launched in 1963 to celebrate the 50th anniversary of the International Tennis Federation (ITF). The competition was known as the Federation Cup until 1995.\n"""\n'
@@ -170,7 +153,6 @@ five_shot_output = (
     "Answer: International Tennis Federation"
 )
 
-# 示例 6：当前 vs 历史 (保持不变)
 six_shot_docs = (
     '"""Wikipedia Title: MYSTIC (surveillance program)\n'
     'MYSTIC is a former secret program used since 2009 by the US National Security Agency (NSA). The program was first revealed in March 2014.\n"""\n'
@@ -192,7 +174,6 @@ six_shot_output = (
     "Answer: Michael S. Rogers"
 )
 
-# 示例 7：【新增】格式精确匹配 - 保留修饰词和日期格式
 seven_shot_docs = (
     '"""Wikipedia Title: Nanjing\n'
     'Nanjing, formerly romanized as Nanking, is the capital of Jiangsu province. Archaeological discovery shows human activity in about 5000 years ago with the Beiyinyangying culture of Nanjing.\n"""\n'
@@ -213,7 +194,6 @@ seven_shot_output = (
     "Answer: about 5000 years ago"
 )
 
-# 示例 8：【新增】日期格式 - 使用文档原始格式
 eight_shot_docs = (
     '"""Wikipedia Title: Vatican City\n'
     'Vatican City became independent from Italy on 11 February 1929 with the Lateran Treaty.\n"""\n'

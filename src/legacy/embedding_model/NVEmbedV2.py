@@ -53,7 +53,6 @@ class NVEmbedV2EmbeddingModel(BaseEmbeddingModel):
         logger.debug(f"Initializing {self.__class__.__name__}'s embedding model with params: {self.embedding_config.model_init_params}")
         print("before AutoModel.from_pretrained", self.embedding_config.model_init_params)
 
-        # 错误点！！！
         self.embedding_model = AutoModel.from_pretrained(**self.embedding_config.model_init_params)
 
 

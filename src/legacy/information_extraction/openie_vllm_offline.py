@@ -75,8 +75,6 @@ class VLLMOfflineOpenIE(OpenIE):
             triple_raw_outputs.append(triple_raw_output)
         triple_results_dict = {chunk_key: triple_raw_output for chunk_key, triple_raw_output in zip(chunks.keys(), triple_raw_outputs)}
 
-        # 返回空的 topic_results_dict 以保持接口一致性
-        # VLLMOfflineOpenIE 不支持 topic extraction，所以返回空字典
         topic_results_dict = {}
 
         return ner_results_dict, triple_results_dict, topic_results_dict

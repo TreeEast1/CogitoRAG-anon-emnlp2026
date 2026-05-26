@@ -19,7 +19,6 @@ def analyze_extraction_results(openie_file):
     print("=" * 80)
     print()
 
-    # 读取文件
     with open(openie_file, 'r', encoding='utf-8') as f:
         data = json.load(f)
 
@@ -30,7 +29,6 @@ def analyze_extraction_results(openie_file):
         print("⚠️  没有找到任何文档")
         return
 
-    # 统计指标
     failed_count = 0
     retry_counts = []
     failure_reasons = defaultdict(int)
@@ -42,17 +40,14 @@ def analyze_extraction_results(openie_file):
     for doc in docs:
         metadata = doc.get('metadata', {})
 
-        # 失败统计
         if metadata.get('extraction_failed', False):
             failed_count += 1
             reason = metadata.get('failure_reason', 'unknown')
             failure_reasons[reason] += 1
 
-        # 重试统计
         retry_count = metadata.get('retry_count', 0)
         retry_counts.append(retry_count)
 
-        # Think 和 Memory 统计
         if 'think' in doc and doc['think']:
             has_think += 1
             think_lengths.append(len(doc['think']))
@@ -61,7 +56,6 @@ def analyze_extraction_results(openie_file):
             has_memory += 1
             memory_lengths.append(len(doc['memory']))
 
-    # 计算统计数据
     success_count = total - failed_count
     success_rate = success_count / total * 100
     failure_rate = failed_count / total * 100
@@ -72,7 +66,6 @@ def analyze_extraction_results(openie_file):
     avg_think_length = sum(think_lengths) / len(think_lengths) if think_lengths else 0
     avg_memory_length = sum(memory_lengths) / len(memory_lengths) if memory_lengths else 0
 
-    # 输出统计结果
     print("📊 基本统计")
     print("-" * 80)
     print(f"总文档数:        {total}")
@@ -85,7 +78,6 @@ def analyze_extraction_results(openie_file):
     print(f"平均重试次数:    {avg_retry:.2f}")
     print(f"最大重试次数:    {max_retry}")
 
-    # 重试次数分布
     retry_distribution = defaultdict(int)
     for count in retry_counts:
         retry_distribution[count] += 1
@@ -114,7 +106,6 @@ def analyze_extraction_results(openie_file):
     print(f"平均 Memory 长度:{avg_memory_length:.0f} 字符")
     print()
 
-    # 实体和三元组统计
     total_entities = sum(len(doc.get('extracted_entities', [])) for doc in docs)
     total_triples = sum(len(doc.get('extracted_triples', [])) for doc in docs)
 
@@ -129,7 +120,6 @@ def analyze_extraction_results(openie_file):
     print(f"平均三元组数:    {avg_triples:.2f} 个/文档")
     print()
 
-    # 健康度评估
     print("🏥 健康度评估")
     print("-" * 80)
 
@@ -164,7 +154,6 @@ def analyze_extraction_results(openie_file):
     print(f"重试次数评级:    {retry_color} {retry_health}")
     print()
 
-    # 建议
     print("💡 建议")
     print("-" * 80)
 

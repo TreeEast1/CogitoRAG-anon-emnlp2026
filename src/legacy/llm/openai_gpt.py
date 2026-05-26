@@ -151,7 +151,6 @@ class CacheOpenAI(BaseLLM):
             self.llm_name = global_config.llm_name
             self.llm_base_url = global_config.llm_base_url
             self._azure_endpoint = global_config.azure_endpoint
-            # 从环境变量获取 API key，而不是硬编码
             self._api_key = os.environ.get("OPENAI_API_KEY")
             self._api_version = api_version
         else:

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-检查 Think 文件的完整性和质量
+Check Think file integrity and quality
 
-用法：
+Usage:
     python check_think_quality.py --think_dir <path_to_think_storage>
 """
 
@@ -24,7 +24,6 @@ def check_think_quality(think_dir):
         print(f"❌ 错误: 目录不存在 {think_dir}")
         return
 
-    # 获取所有 think 文件
     think_files = [f for f in os.listdir(think_dir) if f.endswith('.txt')]
     total_files = len(think_files)
 
@@ -35,14 +34,12 @@ def check_think_quality(think_dir):
     print(f"📊 找到 {total_files} 个 think 文件")
     print()
 
-    # 统计数据
     empty_files = []
     short_files = []  # < 50 字符
     long_files = []   # > 1000 字符
     lengths = []
     word_counts = []
 
-    # 分析每个文件
     print("🔍 分析文件...")
     for filename in think_files:
         filepath = os.path.join(think_dir, filename)
@@ -63,14 +60,12 @@ def check_think_quality(think_dir):
         elif length > 1000:
             long_files.append((filename, length))
 
-    # 计算统计数据
     avg_length = sum(lengths) / len(lengths) if lengths else 0
     min_length = min(lengths) if lengths else 0
     max_length = max(lengths) if lengths else 0
 
     avg_words = sum(word_counts) / len(word_counts) if word_counts else 0
 
-    # 输出统计结果
     print()
     print("=" * 80)
     print("统计结果")
@@ -88,7 +83,6 @@ def check_think_quality(think_dir):
     print("📊 分布统计")
     print("-" * 80)
 
-    # 长度分布
     length_ranges = {
         '0': 0,
         '1-50': 0,
@@ -122,7 +116,6 @@ def check_think_quality(think_dir):
 
     print()
 
-    # 问题文件
     if empty_files or short_files:
         print("⚠️  问题文件")
         print("-" * 80)
@@ -143,7 +136,6 @@ def check_think_quality(think_dir):
 
         print()
 
-    # 质量评估
     print("🏥 质量评估")
     print("-" * 80)
 
@@ -168,7 +160,6 @@ def check_think_quality(think_dir):
     print(f"过短文件率:   {short_rate:.1f}%")
     print()
 
-    # 建议
     print("💡 建议")
     print("-" * 80)
 
@@ -190,7 +181,6 @@ def check_think_quality(think_dir):
         print("✓ Think 文件质量优秀，无需改进")
         print()
 
-    # 保存报告
     report_file = os.path.join(os.path.dirname(think_dir), 'think_quality_report.json')
 
     report_data = {

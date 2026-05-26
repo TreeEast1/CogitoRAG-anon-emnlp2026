@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-计算排除敏感内容后的 EM/F1 指标
+Calculate EM/F1 metrics after excluding sensitive content
 
-用法:
+Usage:
     python scripts/calculate_filtered_metrics.py \
         --results outputs/musique_full_gpt52/result3.json \
         --failed outputs/musique_full_gpt52/failed_extractions/failed_extractions_20260203_100913.json \
@@ -63,22 +63,18 @@ def compute_f1(gold_list: List[str], predicted: str) -> float:
 def get_affected_qa_indices(failed_extractions_path: str, dataset_path: str) -> Set[int]:
     """根据失败的 extraction 找出受影响的 QA 索引"""
 
-    # 加载失败的 chunk 记录
     with open(failed_extractions_path, 'r') as f:
         failed_data = json.load(f)
 
-    # 提取失败 passage 的标题（第一行通常是标题）
     failed_titles = set()
     for record in failed_data['failed_records']:
         passage = record['passage']
         title = passage.split('\n')[0].strip()
         failed_titles.add(title)
 
-    # 加载 QA 数据集
     with open(dataset_path, 'r') as f:
         samples = json.load(f)
 
-    # 找出受影响的 QA
     affected_indices = set()
     for idx, sample in enumerate(samples):
         paragraphs = sample.get('paragraphs', [])
@@ -87,7 +83,6 @@ def get_affected_qa_indices(failed_extractions_path: str, dataset_path: str) -> 
             if p.get('is_supporting', False):
                 supporting_titles.add(p.get('title', ''))
 
-        # 检查是否有 supporting paragraph 在失败列表中
         if supporting_titles & failed_titles:
             affected_indices.add(idx)
 
@@ -103,11 +98,9 @@ def main():
     parser.add_argument('--verbose', action='store_true', help='显示详细信息')
     args = parser.parse_args()
 
-    # 加载结果
     with open(args.results, 'r') as f:
         results = json.load(f)
 
-    # 获取受影响的 QA 索引
     affected_indices, failed_titles = get_affected_qa_indices(args.failed, args.dataset)
 
     print('=' * 70)
@@ -120,7 +113,6 @@ def main():
             print(f'  - {t}')
         print(f'\n受影响的 QA 索引 ({len(affected_indices)} 个): {sorted(affected_indices)}')
 
-    # 计算原始 EM/F1
     total_em_all = 0
     total_f1_all = 0
     for item in results:
@@ -136,7 +128,6 @@ def main():
     print(f'  ExactMatch: {em_all:.4f} ({em_all*100:.2f}%)')
     print(f'  F1:         {f1_all:.4f} ({f1_all*100:.2f}%)')
 
-    # 计算排除敏感内容后的 EM/F1
     total_em_filtered = 0
     total_f1_filtered = 0
     valid_count = 0
@@ -157,7 +148,6 @@ def main():
     print(f'  ExactMatch: {em_filtered:.4f} ({em_filtered*100:.2f}%)')
     print(f'  F1:         {f1_filtered:.4f} ({f1_filtered*100:.2f}%)')
 
-    # 被排除问题的表现
     if affected_indices:
         excluded_em = sum(compute_em(results[i]['golden_answer'], results[i]['output']) for i in affected_indices)
         excluded_f1 = sum(compute_f1(results[i]['golden_answer'], results[i]['output']) for i in affected_indices)
@@ -175,7 +165,6 @@ def main():
     f1_diff = (f1_filtered - f1_all) * 100
     print(f'变化:     EM {em_diff:+.2f}%, F1 {f1_diff:+.2f}%')
 
-    # 保存结果
     if args.output:
         output_data = {
             'original': {

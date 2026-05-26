@@ -253,7 +253,6 @@ class BaseConfig:
         metadata={"help": "Length of the corpus to use."}
     )
     
-    # ---- 新增实验参数 ----
     ppr_topk: int = field(
         default=8,
         metadata={"help": "Number of top entities used for paragraph score aggregation in PPR."}

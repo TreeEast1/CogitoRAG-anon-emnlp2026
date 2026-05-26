@@ -1,9 +1,4 @@
 # rag_qa_musique_v3.py
-# 增强版：解决更多 QA 错误模式
-# - 保留时间修饰语（mid-June 不简化为 June）
-# - 答案应为最短精确匹配（不要多加描述词）
-# - 问人名就答人名，不要用职位描述代替
-# - 去掉句末标点
 
 one_shot_rag_qa_docs = (
     """Wikipedia Title: The Last Horse\nThe Last Horse (Spanish:El último caballo) is a 1950 Spanish comedy film directed by Edgar Neville starring Fernando Fernán Gómez.\n"""
@@ -13,20 +8,17 @@ one_shot_rag_qa_docs = (
     """Wikipedia Title: Finding Nemo\nFinding Nemo Theatrical release poster Directed by Andrew Stanton Produced by Graham Walters Screenplay by Andrew Stanton Bob Peterson David Reynolds Story by Andrew Stanton Starring Albert Brooks Ellen DeGeneres Alexander Gould Willem Dafoe Music by Thomas Newman Cinematography Sharon Calahan Jeremy Lasky Edited by David Ian Salter Production company Walt Disney Pictures Pixar Animation Studios Distributed by Buena Vista Pictures Distribution Release date May 30, 2003 (2003 - 05 - 30) Running time 100 minutes Country United States Language English Budget $$94 million Box office $$940.3 million"""
 )
 
-# 第二个示例：演示保留时间修饰语（early/mid/late）
 second_shot_docs = (
     """Wikipedia Title: Allied Negotiations\nThe preliminary talks between the Allied powers began in early March 1945. By mid-April, the main discussions had formally started, focusing on post-war territorial arrangements.\n"""
     """Wikipedia Title: World War II Timeline\nWorld War II in Europe ended on May 8, 1945, known as Victory in Europe Day (V-E Day).\n"""
 )
 
-# 第三个示例：问人名时回答人名，不要用职位描述代替
 third_shot_docs = (
     """Wikipedia Title: Governor-General of India\nThe office of Governor-General of India was established on 20 October 1774. Warren Hastings served as the first Governor-General from 1774 to 1785. The final holder was Chakravarthi Rajagopalachari. The office was abolished on 26 January 1950.\n"""
     """Wikipedia Title: Warren Hastings\nWarren Hastings (6 December 1732 – 22 August 1818) was an English statesman who served as the first de facto Governor-General of India.\n"""
 )
 
 
-# 改进的 system prompt：强调最短精确匹配
 rag_qa_system = (
     'As an advanced reading comprehension assistant, your task is to analyze text passages and answer questions accurately. '
     'Your response starts after "Thought: ", where you methodically break down the reasoning process. '
@@ -45,7 +37,6 @@ rag_qa_system = (
     '5. Answer the ACTUAL question: If asked for a person, give the person. If asked for a place, give the place.\n'
 )
 
-# 第一个示例
 one_shot_rag_qa_input = (
     f"{one_shot_rag_qa_docs}"
     "\n\nQuestion: "
@@ -60,7 +51,6 @@ one_shot_rag_qa_output = (
     "\nAnswer: 1862"
 )
 
-# 第二个示例：演示保留时间修饰语
 second_shot_input = (
     f"{second_shot_docs}"
     "\n\nQuestion: "
@@ -74,7 +64,6 @@ second_shot_output = (
     "\nAnswer: mid-April"
 )
 
-# 第三个示例：问人名时回答人名
 third_shot_input = (
     f"{third_shot_docs}"
     "\n\nQuestion: "

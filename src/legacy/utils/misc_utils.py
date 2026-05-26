@@ -15,9 +15,9 @@ logger = logging.getLogger(__name__)
 class TopicRawOutput:
     chunk_id: str
     response: str
-    topic: str  # 保留用于兼容性
-    think: str  # 思考过程，用于暂存
-    memory: str  # 记忆内容，用于建图
+    topic: str
+    think: str
+    memory: str
     metadata: Dict[str, Any]
 
 @dataclass

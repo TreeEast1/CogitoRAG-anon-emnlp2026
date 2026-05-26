@@ -210,11 +210,9 @@ class TAG:
 
         self.openie_results_path = os.path.join(self.global_config.save_dir,f'openie_results_ner_{self.global_config.llm_name.replace("/", "_")}.json')
 
-        # 添加 think 存储路径
         self.think_storage_dir = os.path.join(self.global_config.save_dir, 'think_storage')
         os.makedirs(self.think_storage_dir, exist_ok=True)
 
-        # 添加失败文本存储路径
         self.failed_extraction_dir = os.path.join(self.global_config.save_dir, 'failed_extractions')
         os.makedirs(self.failed_extraction_dir, exist_ok=True)
 
@@ -296,14 +294,11 @@ class TAG:
         if not os.path.exists(TAG_data_dir):
             os.makedirs(TAG_data_dir)
 
-        # 获取当前时间并格式化为年月日时分秒
         time_stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         
-        # 创建时间戳目录
         time_dir = os.path.join(TAG_data_dir, time_stamp)
         os.makedirs(time_dir, exist_ok=True)
         
-        # 在时间戳目录中创建 input 目录
         input_dir = os.path.join(time_dir, "input")
         os.makedirs(input_dir, exist_ok=True)
 
@@ -318,33 +313,27 @@ class TAG:
         settings_path = f"{time_dir}/settings.yaml"
 
 
-        # 1. 在 time_dir 下 init
         subprocess.run(["python", "-m", "graphrag", "init", "--root", time_dir], check=True)
 
-        # 2. 复制 settings_index.yaml 到新目录下覆盖 settings.yaml
         settings_index_path = os.path.join(TAG_data_dir, "settings_index.yaml")
         settings_path = os.path.join(time_dir, "settings.yaml")
         shutil.copyfile(settings_index_path, settings_path)
         print(f"Copied {settings_index_path} to {settings_path}")
 
-        # # 3. 写入 docs 到 input/1.txt, 2.txt, ...
         # for i, doc in enumerate(docs, 1):
         #     file_path = os.path.join(input_dir, f"{i}.txt")
         #     with open(file_path, "w", encoding="utf-8") as f:
         #         f.write(doc)
         # print(f"Wrote {len(docs)} documents to {input_dir}")
-        # 3. 将 docs 每1000个写入到 input/1.txt, 2.txt, ...
         docs_per_file = 500
         for i in range(0, len(docs), docs_per_file):
             file_number = i // docs_per_file + 1
             file_path = os.path.join(input_dir, f"{file_number}.txt")
             with open(file_path, "w", encoding="utf-8") as f:
-                # 将当前批次的1000个文档写入文件
                 for doc in docs[i:i+docs_per_file]:
-                    f.write(doc + "\n")  # 添加换行符，确保每个文档单独一行
+                    f.write(doc + "\n")
         print(f"Wrote {len(docs)} documents to {input_dir}")
 
-        # 4. 创建索引
         subprocess.run(["python", "-m", "graphrag", "index", "--root", time_dir], check=True)
         print("Indexing completed.")
         
@@ -389,17 +378,15 @@ class TAG:
         all_openie_info, chunk_keys_to_process = self.load_existing_openie(chunk_to_rows.keys())
         new_openie_rows = {k : chunk_to_rows[k] for k in chunk_keys_to_process}
 
-        # dev add: 增量修改
         if len(chunk_keys_to_process) > 0:
             print(f"[dev] [TAG] [topic_index] len(chunk_keys_to_process) > 0") # dev add
 
-            # dev add: 提取实体、三元组（NER、Extracting triples）
             new_ner_results_dict, new_triple_results_dict, new_topic_results_dict = self.openie.batch_openie(new_openie_rows)
 
             self.merge_openie_results(all_openie_info, new_openie_rows, new_ner_results_dict, new_triple_results_dict, new_topic_results_dict)
 
         if self.global_config.save_openie:
-            print(f"[dev] [TAG] [topic_index] self.global_config.save_openie") # dev add: 调用这里
+            print(f"[dev] [TAG] [topic_index] self.global_config.save_openie")
             self.save_openie_results(all_openie_info)
 
         ner_results_dict, triple_results_dict = reformat_openie_results(all_openie_info)
@@ -451,7 +438,6 @@ class TAG:
         # print(f"[dev] [TAG] [topic_index] len(self.ent_node_to_chunk_ids): \n{len(self.ent_node_to_chunk_ids)}")
 
         # # print(f"[dev] [TAG] [topic_index] self.node_to_node_stats: \n{self.node_to_node_stats}")
-        # # dev: self.node_to_node_stats 指的是两个节点之间有几条边（？）
         # print(f"[dev] [TAG] [topic_index] len(self.node_to_node_stats): \n{len(self.node_to_node_stats)}")
         # print(f"[dev] [TAG] [topic_index] sum(self.node_to_node_stats.values()): \n{sum(self.node_to_node_stats.values())}")
         
@@ -490,7 +476,6 @@ class TAG:
             print(f"{k}: {v}")
         
         self.entity_id_to_row = self.entity_embedding_store.get_all_id_to_rows()
-        # fact 是 str（从 triple 转化成 str）, triple 是 triple
         self.fact_id_to_row = self.fact_embedding_store.get_all_id_to_rows()
 
         index_total_time = time.time() - index_start_time
@@ -790,7 +775,6 @@ class TAG:
             # print(f"[dev] len(entity_row_dict): {len(entity_row_dict)}")
             # print(f"[dev] entity_row_dict: {entity_row_dict}")
 
-            # # eval 应该是用对 fact 转元组的，entity 不用这个            
             # candidate_entities = [eval(entity_row_dict[id]['content']) for id in real_candidate_entity_ids]
             candidate_entities = [entity_row_dict[id]['content'] for id in real_candidate_entity_ids]
             
@@ -917,8 +901,6 @@ class TAG:
                                                                                          top_k_entity_indices=top_k_entity_indices,
                                                                                          passage_node_weight=self.global_config.passage_node_weight)
                 
-            # print(f"[dev] [TAG] [topic_retrieve] len(sorted_doc_ids): {len(sorted_doc_ids)}") # 值为总 docs 数量
-            # print(f"[dev] [TAG] [topic_retrieve] len(sorted_doc_scores): {len(sorted_doc_scores)}") # 值为总 docs 数量
             # print(f"[dev] [TAG] [topic_retrieve] sorted_doc_scores: {sorted_doc_scores}")
             
             # print(f"[dev] num_to_retrieve: \n{num_to_retrieve}") # 200
@@ -1016,7 +998,6 @@ class TAG:
                 logger.info('No facts found after reranking, return DPR results')
                 sorted_doc_ids, sorted_doc_scores = self.dense_passage_retrieval(query)
             else:
-                # —— 基于实体PPR的初排（已有）
                 sorted_doc_ids, sorted_doc_scores = self.graph_search_with_fact_entities(
                     query=query,
                     link_top_k=self.global_config.linking_top_k,
@@ -1026,21 +1007,17 @@ class TAG:
                     passage_node_weight=self.global_config.passage_node_weight
                 )
 
-            # ===== 新增：Top-K=200 的 dense rerank / 融合 =====
             rerank_k = min(200, len(sorted_doc_ids))
             candidate_local_ids = np.asarray(sorted_doc_ids[:rerank_k], dtype=int)
             ppr_scores_topk = np.asarray(sorted_doc_scores[:rerank_k], dtype=float)
 
-            # 用你现成的 dense_passage_rerank：传入候选 chunk 的 key 集合
             candidate_keys = { self.passage_node_keys[i] for i in candidate_local_ids }
             dense_all_ids, dense_all_scores = self.dense_passage_rerank(query, candidate_keys)
 
-            # 从全量 dense 结果中，抽取候选集合的 dense 分数（按 candidate_local_ids 顺序取值）
             dense_score_map = { int(doc_id): float(score) for doc_id, score in zip(dense_all_ids.tolist(),
                                                                                 dense_all_scores.tolist()) }
             dense_scores_topk = np.array([dense_score_map.get(int(i), 0.0) for i in candidate_local_ids], dtype=float)
 
-            # —— 在候选集合内部做归一化 + 融合
             gamma = float(getattr(self.global_config, "dense_fuse_gamma", 0.95))
             gamma = max(0.0, min(1.0, gamma))
 
@@ -1050,23 +1027,19 @@ class TAG:
                     return np.zeros_like(x)
                 return (x - mn) / (mx - mn)
 
-            # 这里再对前200的分数进行归一化
-            dense_n = _minmax(dense_scores_topk)   # dense 在候选集合内归一化（即原始 query-文档余弦相似度）
-            ppr_n   = _minmax(ppr_scores_topk)     # PPR 在候选集合内归一化
+            dense_n = _minmax(dense_scores_topk)
+            ppr_n   = _minmax(ppr_scores_topk)
 
             fused = gamma * ppr_n + (1.0 - gamma) * dense_n
 
-            # —— 根据融合分排序
             order_in_topk = np.argsort(fused)[::-1]
             final_local_ids_in_topk = candidate_local_ids[order_in_topk]
             final_scores_in_topk    = fused[order_in_topk]
 
-            # —— 截取最终要返回的 num_to_retrieve 个
             take = min(num_to_retrieve, len(final_local_ids_in_topk))
             final_local_ids = final_local_ids_in_topk[:take]
             final_scores    = final_scores_in_topk[:take]
 
-            # —— 拿对应文本
             top_k_docs = [
                 self.chunk_embedding_store.get_row(self.passage_node_keys[idx])["content"]
                 for idx in final_local_ids
@@ -1198,7 +1171,6 @@ class TAG:
                gold_answers: List[List[str]] = None,
                time_dir: str | None = None) -> Tuple[List[QuerySolution], List[str], List[Dict]] | Tuple[List[QuerySolution], List[str], List[Dict], Dict, Dict]:
         
-        # 1. 复制 settings_index.yaml 到新目录下覆盖 settings.yaml
         TAG_data_dir = os.path.join(self.global_config.save_dir, "cognitive_graph_tag_data")
         if not os.path.exists(TAG_data_dir):
             os.makedirs(TAG_data_dir)
@@ -1273,7 +1245,6 @@ class TAG:
         split_cache_hits = 0
         split_start_time = time.time()
 
-        #### 最开始的拆分prompt
         # system_prompt = f"""
         #                 You are a query decomposition assistant for document retrieval.
 
@@ -1322,7 +1293,6 @@ class TAG:
                 f.write("")
 
         for query in tqdm(queries, desc="Splitting queries"):
-            ######## 最开始的拆分prompt
             # messages = [
             #     {"role": "system", "content": system_prompt},
             #     {"role": "user", "content": f"Question: {query}"}
@@ -1685,17 +1655,14 @@ class TAG:
         # Evaluating QA
         if gold_answers is not None:
             print(f"[dev] gold_answers is not None:")
-            # ---- 放在 overall_qa_em_result 计算之前 ----
             import re
 
             def _is_valid_answer(ans: str) -> bool:
-                # 判空
                 if ans is None:
                     return False
                 s = str(ans).strip()
                 if not s:
                     return False
-                # 粗粒度拒答/合规触发关键词（可按需要增删）
                 low = s.lower()
                 bad_keys = [
                     "i'm sorry", "i am sorry", "cannot help", "can't help",
@@ -1704,8 +1671,6 @@ class TAG:
                 ]
                 return not any(k in low for k in bad_keys)
 
-            # 原来你这里有 queries_solutions / gold_answers
-            # 做一个对齐过滤（只影响评估，不改动原列表）
             _filtered_pairs = []
             drop_cnt = 0
             for q, g in zip(queries_solutions, gold_answers):
@@ -1718,7 +1683,6 @@ class TAG:
             if len(_filtered_pairs) == 0:
                 logger.warning("[dev] All QA examples filtered out by policy/refusal check; skip EM/F1.")
                 overall_qa_results = {"ExactMatch": 0.0, "F1": 0.0}
-                # 保持你原有的回填逻辑不变
                 for idx, q in enumerate(queries_solutions):
                     if q is None: 
                         continue
@@ -1728,7 +1692,6 @@ class TAG:
                             q.gold_docs = gold_docs[idx]
                     except Exception:
                         pass
-                # 正常 return（与你原代码一致的返回位）
                 return queries_solutions, all_response_message, all_metadata, overall_retrieval_result, overall_qa_results
 
             logger.info(f"[dev] QA eval filtered {drop_cnt} invalid/policy samples.")
@@ -2013,8 +1976,7 @@ class TAG:
             except Exception as e:  # dev add
                 print(f"[dev] Error: {e}")
                 print(f"[dev] qa_messages: {qa_messages}")
-                # —— 记为「无效」→ 评估前一起踢掉——
-                all_qa_results.append(("", {}, False))   # 修复: 改为 3 元组，与正常返回一致
+                all_qa_results.append(("", {}, False))
 
         
         # dev add: test print
@@ -2095,8 +2057,6 @@ class TAG:
         local_search_engine = get_search_engine(method="local", query="None", root=root)
         
         # /data2-HDD-SATA-20T/nzq/jmf/new_rag_2/graphrag_test/graphrag/graphrag/api/query.py
-        # return search_engine.stream_search(query=query, rerank=rerank, embedding_text_units=embedding_text_units) # embedding_text_units 没用
-        # return search_engine.get_system_prompt(query=query, rerank=rerank, embedding_text_units=embedding_text_units) # embedding_text_units 没用
         
         search_prompt = local_search_engine.get_system_prompt(query=queries[0].question, rerank=True)
         
@@ -2424,12 +2384,10 @@ class TAG:
                                  'extracted_entities': ner_results_dict[chunk_key].unique_entities,
                                  'extracted_triples': triple_results_dict[chunk_key].triples}
 
-            # 添加 think 和 memory 信息
             if topic_results_dict and chunk_key in topic_results_dict:
                 topic_result = topic_results_dict[chunk_key]
                 chunk_openie_info['think'] = topic_result.think
                 chunk_openie_info['memory'] = topic_result.memory
-                # 传递 metadata 以便检查失败标记
                 chunk_openie_info['metadata'] = topic_result.metadata
 
             all_openie_info.append(chunk_openie_info)
@@ -2487,14 +2445,12 @@ class TAG:
                 json.dump(openie_dict, f)
             logger.info(f"OpenIE results saved to {self.openie_results_path}")
 
-            # 保存 think 内容到单独的文件夹
             think_count = 0
             for chunk in all_openie_info:
                 if 'think' in chunk and chunk['think']:
                     chunk_id = chunk['idx']
                     think_content = chunk['think']
 
-                    # 使用 chunk_id 作为文件名
                     think_file_path = os.path.join(self.think_storage_dir, f'{chunk_id}.txt')
 
                     with open(think_file_path, 'w', encoding='utf-8') as f:
@@ -2505,12 +2461,10 @@ class TAG:
             if think_count > 0:
                 logger.info(f"Saved {think_count} think files to {self.think_storage_dir}")
 
-            # 保存失败的提取文本
             failed_count = 0
             failed_records = []
 
             for chunk in all_openie_info:
-                # 检查是否有失败标记（从 metadata 中获取）
                 if 'metadata' in chunk and chunk.get('metadata', {}).get('extraction_failed', False):
                     chunk_id = chunk['idx']
                     passage = chunk['passage']
@@ -2528,7 +2482,6 @@ class TAG:
                     failed_count += 1
 
             if failed_count > 0:
-                # 保存失败记录到 JSON 文件
                 failed_file_path = os.path.join(self.failed_extraction_dir,
                                                f'failed_extractions_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json')
 
@@ -2972,7 +2925,6 @@ class TAG:
         query_doc_scores = np.squeeze(query_doc_scores) if query_doc_scores.ndim == 2 else query_doc_scores
         query_doc_scores = min_max_normalize(query_doc_scores)
 
-        # TODO: 粗略改
         for query_doc_scores_index in range(len(query_doc_scores)):
             if self.passage_node_keys[query_doc_scores_index] not in chunk_ids_related:
                 query_doc_scores[query_doc_scores_index] = 0
@@ -3062,7 +3014,6 @@ class TAG:
         phrase_weights = np.zeros(len(self.graph.vs['name']))
         passage_weights = np.zeros(len(self.graph.vs['name']))
 
-        # ------- 奖励超参（按数据集 + 可选覆盖） --------
         dataset_name = (self.global_config.dataset or "").lower()
         alpha_beta_map = {
             "nq": (1.0, 0.5),
@@ -3080,7 +3031,7 @@ class TAG:
         # ------------------------
 
         from collections import defaultdict
-        entity_hit_count = defaultdict(int)          # 记录实体在 top-k 事实里出现次数
+        entity_hit_count = defaultdict(int)
 
         for rank, f in enumerate(top_k_facts):
             subject_phrase = f[0].lower()
@@ -3090,22 +3041,19 @@ class TAG:
                 top_k_fact_indices[rank]] if query_fact_scores.ndim > 0 else query_fact_scores
 
             for phrase in [subject_phrase, object_phrase]:
-                entity_hit_count[phrase] += 1        # ① 先计数
+                entity_hit_count[phrase] += 1
 
                 phrase_key = compute_mdhash_id(content=phrase, prefix="entity-")
                 phrase_id = self.node_name_to_vertex_idx.get(phrase_key, None)
 
                 if phrase_id is not None:
-                    # ② 计算奖励因子
                     bonus = 1.0 + alpha * (1 - np.exp(-beta * entity_hit_count[phrase]))
-                    # ③ 最终权重 = 事实得分 * 奖励 / chunk 惩罚
                     weight = fact_score * bonus
                     if len(self.ent_node_to_chunk_ids.get(phrase_key, set())) > 0:
                         weight /= len(self.ent_node_to_chunk_ids[phrase_key])
 
                     phrase_weights[phrase_id] = weight
 
-                # 下面保持原样，用于日志
                 if phrase not in phrase_scores:
                     phrase_scores[phrase] = []
                 phrase_scores[phrase].append(fact_score)
@@ -3176,7 +3124,6 @@ class TAG:
         if len(entity_indices) == 0:
             raise RuntimeError("entity_node_idxs 为空，无法执行实体子图 PPR。")
 
-        # 可配置的 Top-K（默认 8）
         K = int(getattr(self.global_config, "ppr_topk", 8))
 
 
@@ -3184,7 +3131,6 @@ class TAG:
 
         node_names = self.graph.vs["name"]
 
-        # ---- 构造实体子图 & reset 分布（仅实体）----
         subgraph = self.graph.induced_subgraph(entity_indices)
         full_to_sub = {full_i: sub_i for sub_i, full_i in enumerate(entity_indices)}
 
@@ -3195,7 +3141,6 @@ class TAG:
         else:
             reset_sub = reset_sub / s
 
-        # ---- 在实体子图上跑 PPR ----
         pr_sub = subgraph.personalized_pagerank(
             vertices=range(len(entity_indices)),
             damping=damping,
@@ -3205,8 +3150,6 @@ class TAG:
             implementation="prpack",
         )
 
-        # ---- 段落 ← 实体：Top-K 求和 + √(实体数) 归一化 ----
-        # 缺少 chunk_id -> 实体(full idx)映射时，动态构建并缓存
         if not hasattr(self, "chunk_id_to_entity_full_indices"):
             if not hasattr(self, "ent_node_to_chunk_ids"):
                 raise RuntimeError("缺少 ent_node_to_chunk_ids 或 chunk_id_to_entity_full_indices 映射。")
@@ -3220,14 +3163,13 @@ class TAG:
         doc_scores = np.zeros(len(passage_indices), dtype=float)
 
         for idx_in_list, pass_full_i in enumerate(passage_indices):
-            chunk_key = node_names[pass_full_i]  # 段落节点的 name 作为 chunk_id
+            chunk_key = node_names[pass_full_i]
             ent_full_list = self.chunk_id_to_entity_full_indices.get(chunk_key, [])
 
             if not ent_full_list:
                 doc_scores[idx_in_list] = 0.0
                 continue
 
-            # 去重防重复计数（以实体full idx为准）
             ent_full_set = set(ent_full_list)
 
             scores_e = []
@@ -3243,21 +3185,17 @@ class TAG:
 
             se = np.array(scores_e, dtype=float)
             k = min(K, m)
-            # 取前K大值（O(m) 选择）
             topk_vals = np.partition(se, -k)[-k:]
             base = float(np.sum(topk_vals))
 
-            # √(实体数) 归一化，抑制“实体很多的段落天然占优”
             doc_scores[idx_in_list] = base / (m ** 0.5)
 
-        # ---- Min-Max 归一化到 [0,1]（用于后续与 dense 分数融合）----
         mn, mx = float(np.min(doc_scores)), float(np.max(doc_scores))
         if mx - mn < 1e-12:
             doc_scores_norm = np.zeros_like(doc_scores)
         else:
             doc_scores_norm = (doc_scores - mn) / (mx - mn)
 
-        # ---- 排序并返回（按归一化分数降序）----
         sorted_ids = np.argsort(doc_scores_norm)[::-1]
         return sorted_ids, doc_scores_norm[sorted_ids]
 
@@ -3299,7 +3237,6 @@ class TAG:
         phrase_weights = np.zeros(len(self.graph.vs['name']))
         passage_weights = np.zeros(len(self.graph.vs['name']))
 
-         # ------- 奖励超参（按数据集 + 可选覆盖） --------
         dataset_name = (self.global_config.dataset or "").lower()
         alpha_beta_map = {
             "nq": (1.0, 0.5),
@@ -3316,7 +3253,7 @@ class TAG:
         beta = default_beta if config_beta is None else float(config_beta)
         # ------------------------
 
-        entity_hit_count = defaultdict(int)          # 记录实体在 top-k 事实里出现次数
+        entity_hit_count = defaultdict(int)
 
         for rank, f in enumerate(top_k_facts):
             subject_phrase = f[0].lower()
@@ -3326,22 +3263,19 @@ class TAG:
                 top_k_fact_indices[rank]] if query_fact_scores.ndim > 0 else query_fact_scores
 
             for phrase in [subject_phrase, object_phrase]:
-                entity_hit_count[phrase] += 1        # ① 先计数
+                entity_hit_count[phrase] += 1
 
                 phrase_key = compute_mdhash_id(content=phrase, prefix="entity-")
                 phrase_id = self.node_name_to_vertex_idx.get(phrase_key, None)
 
                 if phrase_id is not None:
-                    # ② 计算奖励因子
                     bonus = 1.0 + alpha * (1 - np.exp(-beta * entity_hit_count[phrase]))
-                    # ③ 最终权重 = 事实得分 * 奖励 / chunk 惩罚
                     weight = fact_score * bonus
                     if len(self.ent_node_to_chunk_ids.get(phrase_key, set())) > 0:
                         weight /= len(self.ent_node_to_chunk_ids[phrase_key])
 
                     phrase_weights[phrase_id] = weight
 
-                # 下面保持原样，用于日志
                 if phrase not in phrase_scores:
                     phrase_scores[phrase] = []
                 phrase_scores[phrase].append(fact_score)
@@ -3432,15 +3366,11 @@ class TAG:
                 - The first array corresponds to document IDs sorted based on their scores.
                 - The second array consists of the PPR scores associated with the sorted document IDs.
         """
-        # TODO: 改成返回所有顶点 / 距离 < k 的顶点对应的 doc
-        # 使用 self.ent_node_to_chunk_ids 反向索引 dict{ent_id: set(chunk_id)}
         
         chunk_ids_related = []
         
-        multi_hop = 7 # NOTE: 真实跳的步数为 multi_hop + 1
-        # 目前SOTA为3！
+        multi_hop = 7
 
-        # TODO: 将所有距离为 multi_hop 的实体加入候选实体
         # entities_related = [] # "entity-"
         # for rank, e in enumerate(top_k_entities):
         #     entitiy_phrase = e.lower()
@@ -3452,13 +3382,12 @@ class TAG:
         
         # entities_related = list(set(entities_related))
         
-        entities_related = set()  # 存储所有 multi-hop 内的实体
-        triples_related = set()  # 存储所有 multi-hop 内的关系
+        entities_related = set()
+        triples_related = set()
         visited = set()
         
         # self.entity_to_triple_list
 
-        # 得到 multi-hop 内的 entity
         for e in top_k_entities:
             entity = e.lower()
             entity_key = compute_mdhash_id(
@@ -3471,7 +3400,6 @@ class TAG:
             for _ in range(multi_hop):
                 next_frontier = set()
                 for ent in frontier:
-                    # self.entity_to_entity_list 是 ent_key to ent_key
                     for neighbor in self.entity_to_entity_list.get(ent, []):
                         if neighbor not in visited:
                             visited.add(neighbor)
@@ -3484,7 +3412,6 @@ class TAG:
         
         entities_related = [self.entity_id_to_row[entity_key]["content"] for entity_key in entities_related] # NOTE: entity_key → entity_name
         
-        # 得到 entities_related 连接的 triple
         for entity in entities_related:
             triple_list = set(self.entity_to_triple_list[entity])
             triples_related.update(triple_list)
@@ -3494,7 +3421,6 @@ class TAG:
         # facts_key_related = [compute_mdhash_id(content=fact, prefix='fact-') for fact in facts_related]
         # facts_embedding_related = self.fact_embedding_store.get_embeddings(hash_ids=facts_key_related)
         # print(f"[dev] len(facts_key_related): {len(facts_key_related)}")
-        # # fact 是 str（从 triple 转化成 str）, triple 是 triple
         # print(f"[dev] len(facts_embedding_related): {len(facts_embedding_related)}")
         
         query_fact_scores = self.get_fact_scores(query)
@@ -3505,7 +3431,7 @@ class TAG:
         # print(f"[dev] [Before Rerank] facts_related: \n{facts_related}")
 
         facts_related_rank = []
-        see_num = 1000 # NOTE: 只观测这么多 facts，其余的相似度认为太低直接排除
+        see_num = 1000
         for fact in facts_related:
             if fact in top_k_facts[:see_num]:
                 facts_related_rank.append(top_k_facts.index(fact))
@@ -3518,11 +3444,10 @@ class TAG:
         # print(f"[dev] [After Rerank] facts_related: \n{facts_related}")
         
         fact_number = 10
-        facts_related = facts_related[:fact_number] # 取前 k 个 facts
+        facts_related = facts_related[:fact_number]
         triples_related = [eval(fact) for fact in facts_related]
         
         entities_related = []
-        # 再得到需要的 triple
         for rank, f in enumerate(triples_related):
             ent1 = f[0].lower()
             relation = f[1].lower()
@@ -3586,9 +3511,7 @@ class TAG:
         
         # chunk_ids_related_rerank, chunk_ids_related_rerank_scores = self.dense_passage_retrieval(query)
         chunk_ids_related_rerank, chunk_ids_related_rerank_scores = self.dense_passage_rerank(query, chunk_ids_related)
-        # --- 1. 先留一份“稠密重排”结果，方便后面打印对比 ---
         dense_ids, dense_scores = chunk_ids_related_rerank, chunk_ids_related_rerank_scores
-        # return dense_ids, dense_scores   # 原来直接返回，现在注释掉
         
         # return chunk_ids_related_rerank, chunk_ids_related_rerank_scores
         
@@ -3639,7 +3562,6 @@ class TAG:
             dpr_sorted_doc_ids, dpr_sorted_doc_scores = self.dense_passage_retrieval(query)
             normalized_dpr_sorted_scores = min_max_normalize(dpr_sorted_doc_scores)
             
-            # TODO: self.dense_passage_retrieval(query) 可以去掉（放到后边）
             passage_node_weight = 0 # dev add
 
             for i, dpr_sorted_doc_id in enumerate(dpr_sorted_doc_ids.tolist()):
@@ -3679,7 +3601,6 @@ class TAG:
                 self.passage_node_idxs), f"Doc prob length {len(ppr_sorted_doc_ids)} != corpus length {len(self.passage_node_idxs)}"
 
             # # (len=600) (type=<class 'numpy.ndarray'>)
-            # print(f"[dev] ppr_sorted_doc_ids (len={len(ppr_sorted_doc_ids)}) (type={type(ppr_sorted_doc_ids)}): {ppr_sorted_doc_ids}") # 得到的是索引，而不是 idx
             # print(f"[dev] ppr_sorted_doc_scores (len={len(ppr_sorted_doc_scores)}) (type={type(ppr_sorted_doc_scores)}): {ppr_sorted_doc_scores}")
 
             return ppr_sorted_doc_ids, ppr_sorted_doc_scores
@@ -3726,7 +3647,6 @@ class TAG:
 
 
         """
-        # dev add: 首先用分数 top_k 筛选，然后用 llm 筛选
         
         # load args
         link_top_k: int = self.global_config.linking_top_k
@@ -3788,7 +3708,6 @@ class TAG:
 
 
         """
-        # dev add: 首先用分数 top_k 筛选，然后用 llm 筛选
         
         # load args
         # link_top_k: int = self.global_config.linking_top_k
@@ -3813,8 +3732,7 @@ class TAG:
             # Get the actual fact IDs
             real_candidate_fact_ids = [self.fact_node_keys[idx] for idx in candidate_fact_indices]
             fact_row_dict = self.fact_embedding_store.get_rows(real_candidate_fact_ids)
-            # candidate_facts = [eval(fact_row_dict[id]['content']) for id in real_candidate_fact_ids] # 得到 triple
-            candidate_facts = [fact_row_dict[id]['content'] for id in real_candidate_fact_ids] # 得到 str
+            candidate_facts = [fact_row_dict[id]['content'] for id in real_candidate_fact_ids]
             
             # Rerank the facts
             rerank_filter = False
@@ -3906,7 +3824,6 @@ class TAG:
         reset_prob = np.where(np.isnan(reset_prob) | (reset_prob < 0), 0, reset_prob)
         
         # import inspect
-        # # C 函数实现，不能这么打印位置
         # print(f"[dev] inspect.getmodule(self.graph.personalized_pagerank): {inspect.getmodule(self.graph.personalized_pagerank)}")
         # print(f"[dev] inspect.getfile(self.graph.personalized_pagerank): {inspect.getfile(self.graph.personalized_pagerank)}")
         

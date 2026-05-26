@@ -15,7 +15,6 @@ import os
 import sys
 from datetime import datetime
 
-# 添加项目路径
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 
@@ -34,7 +33,6 @@ def reprocess_failed_extractions(failed_file, output_dir, llm_name, max_retries=
     print("=" * 80)
     print()
 
-    # 读取失败记录
     print(f"📂 读取失败记录: {failed_file}")
     with open(failed_file, 'r', encoding='utf-8') as f:
         failed_data = json.load(f)
@@ -45,17 +43,14 @@ def reprocess_failed_extractions(failed_file, output_dir, llm_name, max_retries=
     print(f"✓ 找到 {total_failed} 个失败记录")
     print()
 
-    # 创建输出目录
     os.makedirs(output_dir, exist_ok=True)
     print(f"✓ 输出目录: {output_dir}")
     print()
 
-    # 统计
     success_count = 0
     still_failed_count = 0
     reprocessed_records = []
 
-    # 重新处理每个失败的记录
     print("🔄 开始重新处理...")
     print("-" * 80)
 
@@ -68,16 +63,11 @@ def reprocess_failed_extractions(failed_file, output_dir, llm_name, max_retries=
         print(f"  原因: {original_failure_reason}")
         print(f"  文本长度: {len(passage)} 字符")
 
-        # 这里应该调用实际的 topic_extraction 方法
-        # 由于需要完整的环境，这里提供模拟代码
-        # 实际使用时需要替换为真实的调用
 
-        # 模拟重新处理
         # result = openie.topic_extraction(chunk_id, passage, max_retries=max_retries)
 
-        # 模拟结果（实际使用时删除这部分）
         import random
-        is_success = random.random() > 0.3  # 70% 成功率
+        is_success = random.random() > 0.3
 
         if is_success:
             print(f"  ✓ 重新处理成功")
@@ -109,7 +99,6 @@ def reprocess_failed_extractions(failed_file, output_dir, llm_name, max_retries=
     print(f"仍然失败: {still_failed_count} ({still_failed_count/total_failed*100:.1f}%)")
     print()
 
-    # 保存重新处理的结果
     output_file = os.path.join(output_dir, f'reprocessed_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json')
 
     with open(output_file, 'w', encoding='utf-8') as f:
@@ -123,7 +112,6 @@ def reprocess_failed_extractions(failed_file, output_dir, llm_name, max_retries=
     print(f"✓ 结果已保存到: {output_file}")
     print()
 
-    # 如果还有失败的，保存到新的失败记录
     if still_failed_count > 0:
         still_failed_records = [r for r in reprocessed_records if r['status'] == 'still_failed']
 
@@ -180,7 +168,6 @@ def main():
 
 
 if __name__ == "__main__":
-    # 如果没有参数，显示使用示例
     if len(sys.argv) == 1:
         print("=" * 80)
         print("重新处理失败的 Topic Extraction")

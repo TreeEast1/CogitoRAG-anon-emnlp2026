@@ -1,11 +1,5 @@
 # rag_qa_musique_v4_1.py
-# V4.1：基于 V4 的小幅优化
-# 改动点：
-# 1. 规则 2 强化格式保持（mid-June, 完整名称）
-# 2. 规则 5 强化简洁性（避免额外后缀）
-# 保持 6-shot 不变，避免 V5 的过度优化问题
 
-# System prompt - V4.1 小幅优化
 rag_qa_system = (
     'You are a multi-hop reading comprehension assistant. Many questions require reasoning through MULTIPLE documents to reach the FINAL answer.\n\n'
 
@@ -49,7 +43,6 @@ rag_qa_system = (
     'Answer: [The FINAL answer, extracted exactly from the documents]'
 )
 
-# 示例 1：基础单跳问题 (保持 V4 不变)
 one_shot_docs = (
     '"""Wikipedia Title: University of Southampton\n'
     'The University of Southampton, which was founded in 1862 and received its Royal Charter as a university in 1952, has over 22,000 students.\n"""\n'
@@ -70,7 +63,6 @@ one_shot_output = (
     "Answer: 1862"
 )
 
-# 示例 2：多跳推理 - 强调必须完成整个链条 (保持 V4 不变)
 two_shot_docs = (
     '"""Wikipedia Title: Keturah\n'
     'Keturah was a concubine and wife of the Biblical patriarch Abraham. According to the Book of Genesis, Abraham married Keturah after the death of his first wife, Sarah. Abraham and Keturah had six sons.\n"""\n'
@@ -91,7 +83,6 @@ two_shot_output = (
     "Answer: Keturah"
 )
 
-# 示例 3：跨文档连接 - 隐含关系识别 (保持 V4 不变)
 three_shot_docs = (
     '"""Wikipedia Title: Shrek 2\n'
     'Shrek 2 is a 2004 film with Jennifer Saunders voicing the Fairy God Mother.\n"""\n'
@@ -112,7 +103,6 @@ three_shot_output = (
     "Answer: Adrian Edmondson"
 )
 
-# 示例 4：答案粒度问题 - 不要过度添加上下文 (保持 V4 不变)
 four_shot_docs = (
     '"""Wikipedia Title: The Boss (1915 film)\n'
     'The Boss is a 1915 silent film released through World Film Company.\n"""\n'
@@ -133,7 +123,6 @@ four_shot_output = (
     "Answer: Fort Lee"
 )
 
-# 示例 5：正确理解 "named after" 语义 (保持 V4 不变)
 five_shot_docs = (
     '"""Wikipedia Title: Fed Cup\n'
     'Fed Cup is the premier international team competition in women\'s tennis, launched in 1963 to celebrate the 50th anniversary of the International Tennis Federation (ITF). The competition was known as the Federation Cup until 1995.\n"""\n'
@@ -154,7 +143,6 @@ five_shot_output = (
     "Answer: International Tennis Federation"
 )
 
-# 示例 6：当前 vs 历史 - 选择正确的实体 (保持 V4 不变)
 six_shot_docs = (
     '"""Wikipedia Title: MYSTIC (surveillance program)\n'
     'MYSTIC is a former secret program used since 2009 by the US National Security Agency (NSA). The program was first revealed in March 2014.\n"""\n'

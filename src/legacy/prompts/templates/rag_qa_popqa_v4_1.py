@@ -1,11 +1,5 @@
 # rag_qa_popqa_v4_1.py
-# V4.1：基于 V4.1 的 PopQA 定制版（保持整体结构不变）
-# 改动点：
-# 1. 处理 PopQA 高频「occupation」单项答案需求
-# 2. 处理 PopQA 高频「born in what city」的粒度与拒答问题
-# 3. 强化同名实体消歧（基于 Wikipedia Title）
 
-# System prompt - V4.1 PopQA 微调
 rag_qa_system = (
     'You are a multi-hop reading comprehension assistant. Many questions require reasoning through MULTIPLE documents to reach the FINAL answer.\n\n'
 
@@ -55,7 +49,6 @@ rag_qa_system = (
     'Answer: [The FINAL answer, extracted exactly from the documents]'
 )
 
-# 示例 1：occupation 单项答案（避免多角色）
 one_shot_docs = (
     '"""Wikipedia Title: Veronica Franco\n'
     'Veronica Franco (c. 1546–1591) was an Italian poet and courtesan in 16th-century Venice.\n"""'
@@ -73,7 +66,6 @@ one_shot_output = (
     "Answer: poet"
 )
 
-# 示例 2：occupation 去除修饰（国家/介质/时期）
 two_shot_docs = (
     '"""Wikipedia Title: Melinda Mullins\n'
     'Melinda Mullins (born April 20, 1958) is an American former film, television and theatre actress.\n"""'
@@ -91,7 +83,6 @@ two_shot_output = (
     "Answer: actress"
 )
 
-# 示例 3：occupation 选择领域而非头衔
 three_shot_docs = (
     '"""Wikipedia Title: Adil Shamoo\n'
     'Adil Shamoo is an American biochemist and professor in the Department of Biochemistry and Molecular Biology at the University of Maryland.\n"""'
@@ -109,7 +100,6 @@ three_shot_output = (
     "Answer: biochemist"
 )
 
-# 示例 4：born-in 粒度（使用最具体地点）
 four_shot_docs = (
     '"""Wikipedia Title: Eduard Bargheer\n'
     'Eduard Bargheer (1901–1979) was born in Finkenwerder, Hamburg, and was a German painter and printmaker.\n"""'
@@ -127,7 +117,6 @@ four_shot_output = (
     "Answer: Finkenwerder"
 )
 
-# 示例 5：born-in 只有国家也要回答
 five_shot_docs = (
     '"""Wikipedia Title: Andrian Mardiansyah\n'
     'Andrian Mardiansyah (born 1991) is an Indonesian footballer who was born in Indonesia.\n"""'
@@ -145,7 +134,6 @@ five_shot_output = (
     "Answer: Indonesia"
 )
 
-# 示例 6：同名实体消歧（依据 Wikipedia Title）
 six_shot_docs = (
     '"""Wikipedia Title: Phil Williams (radio presenter)\n'
     'Phil Williams (born 1971) is a Welsh radio presenter born in Birkenhead.\n"""\n'

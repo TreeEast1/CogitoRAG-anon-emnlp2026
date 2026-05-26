@@ -156,7 +156,6 @@ class OpenIE:
         think = think_match.group(1).strip() if think_match else ""
         memory = memory_match.group(1).strip() if memory_match else ""
 
-        # 验证：两个字段都必须存在且非空
         is_valid = bool(think_match and memory_match and think and memory)
 
         return is_valid, think, memory
@@ -194,12 +193,10 @@ class OpenIE:
                 else:
                     real_response = raw_response
 
-                # 验证输出是否包含 think 和 memory 标签
                 is_valid, think, memory = self._validate_think_memory_output(real_response)
 
                 if is_valid:
-                    # 输出有效，返回结果
-                    topic = memory  # 保留 topic 字段用于兼容性
+                    topic = memory
 
                     print(f"[dev] [OpenIE] [topic_extration] SUCCESS (retry={retry_count}) chunk_key={chunk_key}") # dev add
                     print(f"[dev] [OpenIE] [topic_extration] think (len={len(think)}): \n{think[:200]}...") # dev add
@@ -214,7 +211,6 @@ class OpenIE:
                         metadata=metadata
                     )
                 else:
-                    # 输出无效，记录并重试
                     retry_count += 1
                     logger.warning(f"[topic_extraction] Invalid output for chunk {chunk_key}, retry {retry_count}/{max_retries}")
                     logger.warning(f"[topic_extraction] Response preview: {real_response[:200]}...")
@@ -222,12 +218,10 @@ class OpenIE:
                     if retry_count < max_retries:
                         continue
                     else:
-                        # 达到最大重试次数，标记为失败
                         logger.error(f"[topic_extraction] Failed after {max_retries} retries for chunk {chunk_key}")
                         metadata['extraction_failed'] = True
                         metadata['failure_reason'] = 'max_retries_exceeded'
 
-                        # 使用原始文本作为 memory，think 为空
                         return TopicRawOutput(
                             chunk_id=chunk_key,
                             response=raw_response,
@@ -238,14 +232,12 @@ class OpenIE:
                         )
 
             except Exception as e:
-                # 发生异常，记录并重试
                 retry_count += 1
                 logger.warning(f"[topic_extraction] Exception for chunk {chunk_key}, retry {retry_count}/{max_retries}: {e}")
 
                 if retry_count < max_retries:
                     continue
                 else:
-                    # 达到最大重试次数，返回错误结果
                     logger.error(f"[topic_extraction] Exception after {max_retries} retries for chunk {chunk_key}: {e}")
                     metadata.update({'error': str(e), 'extraction_failed': True, 'failure_reason': 'exception'})
                     return TopicRawOutput(
@@ -257,7 +249,6 @@ class OpenIE:
                         metadata=metadata
                     )
 
-        # 不应该到达这里，但为了安全起见
         return TopicRawOutput(
             chunk_id=chunk_key,
             response=raw_response,
@@ -293,7 +284,6 @@ class OpenIE:
         print(f"[dev] [OpenIE] [batch_openie] chunk_passages (key_type={type(next(iter(chunk_passages)))})") # dev add
         print(f"[dev] [OpenIE] [batch_openie] chunk_passages (value_type={type(chunk_passages[next(iter(chunk_passages))])})") # dev add
 
-        # 存储 topic extraction 结果，包含 think 和 memory
         topic_extraction_results = {}
 
         topic_prompt_tokens = 0
@@ -316,8 +306,7 @@ class OpenIE:
             topic_completion_tokens += topic_metadata.get('completion_tokens', 0)
             if topic_metadata.get('cache_hit'):
                 topic_cache_hit += 1
-            # 使用 memory 替代原来的 topic 用于后续的 NER 和三元组提取
-            chunk_passages[chunk_key] = topic_result.memory # dev modified: 使用 memory 而不是 topic
+            chunk_passages[chunk_key] = topic_result.memory
 
         topic_time = time.time() - topic_start
         
@@ -424,5 +413,4 @@ class OpenIE:
         ner_results_dict = {res.chunk_id: res for res in ner_results_list}
         triple_results_dict = {res.chunk_id: res for res in triple_results_list}
 
-        # 返回 topic_extraction_results 用于后续存储
         return ner_results_dict, triple_results_dict, topic_extraction_results
