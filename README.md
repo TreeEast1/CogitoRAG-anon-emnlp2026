@@ -1,70 +1,65 @@
 # CogitoRAG
 
-> **Anonymous code release accompanying our EMNLP submission. All author and
-> affiliation information has been removed for double-blind review.**
+> **Anonymous code release accompanying our EMNLP submission. All author and affiliation information has been removed for double-blind review.**
 
-This repository contains the reference implementation of **CogitoRAG**, the
-retrieval-augmented generation framework described in the accompanying paper.
-For the motivation, algorithmic details, hyperparameter settings, and
-experimental results, please refer to the paper. This README only describes
-the layout of the codebase and how to run it.
+This repository provides the reference implementation of **CogitoRAG**, a retrieval-augmented generation framework that enhances multi-hop question answering through cognitive-inspired memory indexing and structure-aware retrieval. The accompanying paper describes the motivation, methodological details, and experimental evaluation. This README focuses on codebase organization and reproducibility.
 
 ---
 
-## Code Organization
+## Overview
 
-CogitoRAG is organized around the `main_cog.py` entry point. The
-implementation follows the two-stage pipeline described in the paper:
+CogitoRAG addresses the limitation of conventional RAG systems in handling complex multi-hop queries that require iterative reasoning over dispersed evidence. The framework introduces three key innovations:
 
-- **Offline indexing.** Raw passages are segmented and transformed into
-  passage-grounded semantic memory units, which are then used to construct a
-  multi-dimensional graph over entities, facts, memories, and provenance
-  passages.
-- **Online retrieval.** Given a query, the system performs query
-  decomposition, diffusion over the memory graph, and structure-aware
-  reranking, and finally assembles evidence as passage–memory pairs for the
-  generator.
+1. **Semantic Gist Memory**: Passage-grounded memory units that capture salient information while maintaining provenance
+2. **Query Decomposition Module (QDM)**: Decomposes complex queries into sub-queries aligned with memory units
+3. **Entity Diffusion Module (EDF)**: Propagates query semantics over a multi-dimensional graph via personalized PageRank
+4. **CogniRank**: Structure-aware reranking that balances semantic relevance and graph centrality
 
-The mapping between the modules in the paper and the source files in this
-repository is summarized below.
+The implementation follows a two-stage pipeline:
 
-| Module in the paper                | Source file (this repository)                              |
-|------------------------------------|------------------------------------------------------------|
-| Memory extraction (`<think>` / `<memory>`) | `src/legacy/information_extraction/openie_openai.py` |
-| Multi-dimensional graph construction       | `src/legacy/TAG.py`                                  |
-| Query Decomposition Module (QDM)            | `src/legacy/TAG.py`                                 |
-| Entity Diffusion Module (EDF)               | `src/legacy/TAG.py`                                 |
-| CogniRank reranking                          | `src/legacy/TAG.py`                                |
-| Evidence assembly (passage–memory pairing)  | `src/legacy/TAG.py`                                 |
-| Main runner                                 | `main_cog.py`                                       |
-
-`src/cogitorag` re-exports the public-facing API; `src/legacy` hosts the
-internal modules.
+- **Offline Indexing**: Transforms raw passages into semantic memory units and constructs a multi-dimensional graph over entities, facts, memories, and provenance passages.
+- **Online Retrieval**: Given a query, performs query decomposition, diffusion-based retrieval over the memory graph, and evidence assembly for the generator.
 
 ---
 
-## Project Layout
+## Module Mapping
 
-```text
+The following table maps components described in the paper to their implementations in this repository.
+
+| Component (Paper) | Implementation (This Repo) |
+|-------------------|----------------------------|
+| Semantic Gist Memory extraction | `src/legacy/information_extraction/openie_openai.py` |
+| Multi-dimensional graph construction | `src/legacy/TAG.py` |
+| Query Decomposition Module (QDM) | `src/legacy/TAG.py` |
+| Entity Diffusion Module (EDF) | `src/legacy/TAG.py` |
+| CogniRank reranking | `src/legacy/TAG.py` |
+| Evidence assembly | `src/legacy/TAG.py` |
+| Main execution pipeline | `main_cog.py` |
+
+`src/cogitorag` provides the public API; `src/legacy` contains internal modules.
+
+---
+
+## Project Structure
+
+```
 CogitoRAG/
-├── main_cog.py
-├── README.md
-├── requirements.txt
-├── setup.py
-├── scripts/
-├── reproduce/
-│   └── dataset/
+├── main_cog.py              # Entry point
+├── requirements.txt         # Dependencies
+├── setup.py                 # Package setup
+├── reproduce/               # Reproduction scripts and data
+│   └── dataset/            # Benchmark datasets
+├── scripts/                 # Utility scripts
 └── src/
-    ├── cogitorag/              # public-facing entry point
-    └── legacy/                 # internal modules
-        ├── TAG.py
+    ├── cogitorag/          # Public API
+    └── legacy/             # Internal implementation
+        ├── TAG.py          # Core graph construction and retrieval
         ├── LegacyGraphRAG.py
-        ├── embedding_store.py
-        ├── rerank.py
-        ├── information_extraction/
-        ├── llm/
-        ├── prompts/
-        └── utils/
+        ├── rerank.py       # Reranking utilities
+        ├── embedding_model/ # Embedding models
+        ├── llm/           # LLM interfaces
+        ├── prompts/        # Prompt templates
+        └── utils/         # Utilities
 ```
 
 ---
@@ -75,7 +70,7 @@ CogitoRAG/
 pip install -r requirements.txt
 ```
 
-Configure the LLM and embedding backends through environment variables:
+Configure LLM and embedding backends via environment variables:
 
 ```bash
 export OPENAI_API_KEY=your_key
@@ -88,24 +83,41 @@ For Azure OpenAI:
 ```bash
 export AZURE_ENDPOINT=your_azure_chat_endpoint
 export AZURE_EMBEDDING_ENDPOINT=your_azure_embedding_endpoint
+export AZURE_OPENAI_API_KEY=your_key
 ```
 
 ---
 
-## Data
+## Data Format
 
-Sample data is kept under `reproduce/dataset`. The default data layout is:
+Sample data is provided under `reproduce/dataset`. The expected format:
 
-- `reproduce/dataset/{dataset}.json`
-- `reproduce/dataset/{dataset}_corpus.json`
+- `{dataset}.json`: Query file with `id`, `question`, `contexts` (for evaluation)
+- `{dataset}_corpus.json`: Corpus file with `title` and `text` fields
+
+Supported benchmarks: MuSiQue, HotpotQA, 2WikiMultiHopQA, PopQA.
 
 ---
 
-## Notes on This Release
+## Reproducibility Notes
 
-This release has been cleaned of:
+This release has been prepared for anonymous review:
 
-- experiment logs and large output files
-- caches and `__pycache__` directories
-- one-off experiment scripts and intermediate notes
-- local-environment artifacts
+- Experimental logs and raw outputs have been removed
+- Hyperparameter configurations are omitted (see paper for details)
+- Cached intermediate results and `__pycache__` directories are excluded
+- All author and institution identifiers have been anonymized
+
+For reproducibility, we provide the core implementation and sample data. Full experimental results and ablation studies are reported in the accompanying paper.
+
+---
+
+## Citation
+
+If you use this code, please refer to our paper (link will be updated upon publication).
+
+---
+
+## License
+
+This code is released under the MIT License for academic use.
