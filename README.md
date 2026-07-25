@@ -1,6 +1,6 @@
 # CogitoRAG: Retrieval After Comprehension
 
-> **Anonymous code release accompanying our EMNLP submission. All author and affiliation information has been removed for double-blind review.**
+> **Anonymous code release accompanying our submission. All author and affiliation information has been removed for double-blind review.**
 
 This repository provides the reference implementation of **CogitoRAG**, a retrieval-augmented generation framework that addresses a fundamental limitation of conventional RAG systems: retrieving raw text chunks or knowledge triples *before* semantic understanding, leading to fragmented evidence, ambiguity propagation, and localized reasoning. 
 
@@ -247,7 +247,4 @@ This code is released under the MIT License for academic use.
 
 ## Anonymous Repository
 
-Code and data are anonymously available at:  
-https://anonymous.4open.science/r/CogitoRAG-anon-emnlp2026-5543/
-
-(Anonymized for double-blind review)
+Code and data are anonymously available for double-blind review. All author and affiliation information has been removed.
